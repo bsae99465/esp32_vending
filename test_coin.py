@@ -5,15 +5,15 @@ import time
 coin_pin = Pin(12, Pin.IN, Pin.PULL_UP)
 pulse_count = 0
 last_pulse_time = 0
-debounce_time = 200  # มิลลิวินาที, สำหรับป้องกันการนับพัลส์ซ้ำ
-
+debounce_time = 100  # มิลลิวินาที, สำหรับป้องกันการนับพัลส์ซ้ำ
+last_pwm = None
 def pulse_handler(pin):
-    global pulse_count, last_pulse_time
+    global pulse_count, last_pulse_time,last_pwm
     current_time = time.ticks_ms()
-    if time.ticks_diff(current_time, last_pulse_time) > debounce_time:
+    if pin.value() != last_pwm and pin.value() == 0 and time.ticks_diff(current_time, last_pulse_time) > debounce_time:
         pulse_count += 1
         last_pulse_time = current_time
-
+    last_pwm = pin.value()
 coin_pin.irq(trigger=Pin.IRQ_FALLING, handler=pulse_handler)
 
 print("Waiting for pulses...")
